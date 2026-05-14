@@ -14,7 +14,7 @@ import ua_generator
 def get_random_user_agent() -> dict:
     options = OptionsUA()
     options.version_ranges = {
-        'chrome': VersionRange(140, 144),  # Choose version between 125 and 129
+        'chrome': VersionRange(140, 144),
     }
     ua = ua_generator.generate(
         browser='chrome', platform='windows', options=options)

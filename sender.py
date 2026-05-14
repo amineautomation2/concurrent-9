@@ -5,6 +5,7 @@ from email.message import EmailMessage
 from utils import get_xlsx_filepath
 from datetime import datetime
 
+
 def get_current_quarter(date_obj) -> str:
     return f"Q{(date_obj.month - 1) // 3 + 1}"
 
@@ -15,11 +16,12 @@ def email_title(title: str) -> str:
 
 # Get the secret from environment variables
 
+
 def send_email(platform: str):
     EMAIL_FROM = os.environ.get('EMAIL_USERNAME')
     EMAIL_TO = os.environ.get('EMAIL_DEV')
     PASSWORD = os.environ.get('EMAIL_PASSWORD')
-    filename = "hl.xlsx"
+    filename = "quilter.xlsx"
     FILE = get_xlsx_filepath(filename)
     # Create Message
     msg = EmailMessage()

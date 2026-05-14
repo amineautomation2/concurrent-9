@@ -5,7 +5,7 @@ from random import uniform
 from math import ceil
 from re import sub
 from time import sleep
-from utils import clean_spreadsheet, fetch_with_backoff, get_random_user_agent, get_xlsx_filepath
+from utils import clean_spreadsheet, delay, fetch_with_backoff, get_random_user_agent, get_xlsx_filepath
 
 
 def page_payload(page: int) -> str:
@@ -79,34 +79,34 @@ def quilter_runner() -> None:
         payload_encoded = page_payload(page)
         res = fetch_with_backoff(url=BASE_URL + payload_encoded,
                                  headers=headers)
-        json_data = res.json()
-       # if page == 1:
-        total_funds = ceil(json_data["TotalRows"] / 30)
-        print(
-            f'[Quilter] Total Funds found: {json_data["TotalRows"]} [###]')
-        data = sub(r'\r\n\s', '', json_data["Units"])
-        funds_per_page = json.loads(data)["DataList"]
-        print(f'[#] Page {page} of {total_funds}')
-        for fund in funds_per_page:
-            # fund_url = f'{url}{fund["FundInfo"]["ResponsiveFactsheetLink"]}'
-            f = fund.get("FundInfo")
-            if f:
-                fund_url = f.get("ResponsiveFactsheetLink")
-                name = f.get("Name")
-                isin = f.get("ISIN")
-                if name:
-                    ws.cell(sheet_current_row, 1).value = name
-                if isin:
-                    ws.cell(sheet_current_row,
-                            2).value = isin
-                if fund_url:
-                    fund_url = f'{url}{fund_url}'
-                    c = ws.cell(sheet_current_row, 3, fund_url)
-                    c.hyperlink = fund_url
-                    c.style = "Hyperlink"
-            sheet_current_row += 1
-        has_next = False if page == total_funds else True
-        wb.save(out_xlsx)
-        page += 1
-        sleep(uniform(0.2, 0.5))
+        if res:
+            json_data = res.json()
+            total_funds = ceil(json_data["TotalRows"] / 30)
+            if page == 1:
+                print(f'found: {json_data["TotalRows"]} funds.')
+            data = sub(r'\r\n\s', '', json_data["Units"])
+            funds_per_page = json.loads(data)["DataList"]
+            print(f'[#] Page {page} of {total_funds}')
+            for fund in funds_per_page:
+                # fund_url = f'{url}{fund["FundInfo"]["ResponsiveFactsheetLink"]}'
+                f = fund.get("FundInfo")
+                if f:
+                    fund_url = f.get("ResponsiveFactsheetLink")
+                    name = f.get("Name")
+                    isin = f.get("ISIN")
+                    if name:
+                        ws.cell(sheet_current_row, 1).value = name
+                    if isin:
+                        ws.cell(sheet_current_row,
+                                2).value = isin
+                    if fund_url:
+                        fund_url = f'{url}{fund_url}'
+                        c = ws.cell(sheet_current_row, 3, fund_url)
+                        c.hyperlink = fund_url
+                        c.style = "Hyperlink"
+                sheet_current_row += 1
+            has_next = False if page == total_funds else True
+            wb.save(out_xlsx)
+            page += 1
+            delay(0.43, 2.0)
     wb.close()
