@@ -1,10 +1,7 @@
 import openpyxl
-import curl_cffi
 import json
-from random import uniform
 from math import ceil
 from re import sub
-from time import sleep
 from utils import clean_spreadsheet, delay, fetch_with_backoff, get_random_user_agent, get_xlsx_filepath
 
 
@@ -108,5 +105,6 @@ def quilter_runner() -> None:
             has_next = False if page == total_funds else True
             wb.save(out_xlsx)
             page += 1
-            delay(0.43, 2.0)
+            delay(2, 3.0)
+    wb.save(out_xlsx)
     wb.close()
